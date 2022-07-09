@@ -1,14 +1,17 @@
 import argparse
 import time
 import os
-from constants import JSON_LAYER_SEPARATOR
-from constants import FINDMY_FILES
-from constants import NAME_SEPARATOR
-from constants import JSON_LAYER_SEPARATOR
-from constants import NULL_STR
-from constants import TIME_FORMAT
-from constants import DATE_FORMAT
-from log_manager import LogManager
+import curses
+from datetime import datetime
+from tabulate import tabulate
+from lib.constants import JSON_LAYER_SEPARATOR
+from lib.constants import FINDMY_FILES
+from lib.constants import NAME_SEPARATOR
+from lib.constants import JSON_LAYER_SEPARATOR
+from lib.constants import NULL_STR
+from lib.constants import TIME_FORMAT
+from lib.constants import DATE_FORMAT
+from lib.log_manager import LogManager
 
 
 def parse_args():
@@ -68,7 +71,8 @@ def parse_args():
     return args
 
 
-if __name__ == "__main__":
+def main(stdscr):
+    stdscr.clear()
     args = parse_args()
     log_manager = LogManager(
         findmy_files=[os.path.expanduser(f) for f in FINDMY_FILES],
@@ -79,10 +83,35 @@ if __name__ == "__main__":
         name_separator=NAME_SEPARATOR,
         json_layer_separator=JSON_LAYER_SEPARATOR,
         null_str=NULL_STR,
-        time_format=TIME_FORMAT,
         date_format=DATE_FORMAT,
         no_date_folder=args.no_date_folder)
     while True:
         log_manager.refresh_log()
-        log_manager.print_status()
+        latest_log, log_cnt = log_manager.get_latest_log()
+        table = []
+        for name, log in latest_log.items():
+            latest_time = log[args.timestamp_key]
+            if isinstance(latest_time, int) or isinstance(latest_time, float):
+                latest_time = datetime.fromtimestamp(
+                    float(latest_time) / 1000.)
+                latest_time = latest_time.strftime(TIME_FORMAT)
+            table.append([name, latest_time, log_cnt[name]])
+        table = tabulate(
+            table,
+            headers=['Name', 'Last update', 'Log count'],
+            tablefmt="github")
+
+        stdscr.erase()
+        try:
+            stdscr.addstr(
+                0, 0, f'Current time: {datetime.now().strftime(TIME_FORMAT)}')
+            stdscr.addstr(1, 0, table)
+        except:
+            pass
+        stdscr.refresh()
+
         time.sleep(float(args.refresh) / 1000)
+
+
+if __name__ == "__main__":
+    curses.wrapper(main)

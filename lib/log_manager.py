@@ -1,7 +1,6 @@
 import csv
 import json
 import os
-from tabulate import tabulate
 from datetime import datetime
 from collections import defaultdict
 
@@ -9,7 +8,7 @@ from collections import defaultdict
 class LogManager(object):
     def __init__(self, findmy_files, store_keys, timestamp_key, log_folder,
                  name_keys, name_separator, json_layer_separator, null_str,
-                 time_format, date_format, no_date_folder):
+                 date_format, no_date_folder):
         self._findmy_files = findmy_files
         self._store_keys = store_keys
         self._timestamp_key = timestamp_key
@@ -18,7 +17,6 @@ class LogManager(object):
         self._name_separator = name_separator
         self._json_layer_separator = json_layer_separator
         self._null_str = null_str
-        self._time_format = time_format
         self._date_format = date_format
         self._no_date_folder = no_date_folder
 
@@ -59,10 +57,8 @@ class LogManager(object):
             except:
                 pass
         if not items_dict:
-            print(f'No devices found. Please check '
-                   'if Full Disk Access has been granted to Terminal.')
-            exit()
-
+            raise RuntimeError(f'No devices found. Please check if Full Disk '
+                                'Access has been granted to Terminal.')
         return items_dict
 
     def _save_log(self, name, data):
@@ -92,18 +88,5 @@ class LogManager(object):
                 self._latest_log[name] = items_dict[name]
                 self._log_cnt[name] += 1
 
-    def print_status(self):
-        table = []
-        for name, log in self._latest_log.items():
-            time = log[self._timestamp_key]
-            if isinstance(time, int) or isinstance(time, float):
-                time = datetime.fromtimestamp(
-                    float(log[self._timestamp_key]) / 1000.)
-                time = time.strftime(self._time_format)
-            table.append([name, time, self._log_cnt[name]])
-        os.system('clear')
-        print(f'Current time: {datetime.now().strftime(self._time_format)}')
-        print(tabulate(
-            table,
-            headers=['Name', 'Last update', 'Log count'],
-            tablefmt="github"))
+    def get_latest_log(self):
+        return self._latest_log, self._log_cnt
