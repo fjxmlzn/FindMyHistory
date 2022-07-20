@@ -5,4 +5,4 @@ FINDMY_FILES = [
 NAME_SEPARATOR = '_'
 NULL_STR = 'NULL'
 TIME_FORMAT = '%m/%d/%Y, %H:%M:%S'
-DATE_FORMAT = '%m-%d-%Y'
+DATE_FORMAT = '%Y-%m-%d'
