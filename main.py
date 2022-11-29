@@ -2,6 +2,7 @@ import argparse
 import time
 import os
 import curses
+import subprocess
 from datetime import datetime
 from tabulate import tabulate
 from lib.constants import JSON_LAYER_SEPARATOR
@@ -12,6 +13,9 @@ from lib.constants import NULL_STR
 from lib.constants import TIME_FORMAT
 from lib.constants import DATE_FORMAT
 from lib.log_manager import LogManager
+
+subprocess.check_call("open -gja /System/Applications/FindMy.app",
+                      shell=True)
 
 
 def parse_args():
