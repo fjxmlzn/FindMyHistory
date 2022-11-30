@@ -2,7 +2,7 @@ import argparse
 import time
 import os
 import curses
-import subprocess
+from subprocess import check_call as shell_cmd
 from datetime import datetime
 from tabulate import tabulate
 from lib.constants import JSON_LAYER_SEPARATOR
@@ -13,9 +13,6 @@ from lib.constants import NULL_STR
 from lib.constants import TIME_FORMAT
 from lib.constants import DATE_FORMAT
 from lib.log_manager import LogManager
-
-subprocess.check_call("open -gja /System/Applications/FindMy.app",
-                      shell=True)
 
 
 def parse_args():
@@ -116,6 +113,10 @@ def main(stdscr):
 
         time.sleep(float(args.refresh) / 1000)
 
-
 if __name__ == "__main__":
+    try:
+        shell_cmd("open -gja /System/Applications/FindMy.app", shell=True)
+    except:
+        #Maybe Apple changed the name or the dir of the app?
+        pass
     curses.wrapper(main)
