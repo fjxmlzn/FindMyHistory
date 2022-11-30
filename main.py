@@ -2,6 +2,7 @@ import argparse
 import time
 import os
 import curses
+from subprocess import check_call as shell_cmd
 from datetime import datetime
 from tabulate import tabulate
 from lib.constants import JSON_LAYER_SEPARATOR
@@ -112,6 +113,10 @@ def main(stdscr):
 
         time.sleep(float(args.refresh) / 1000)
 
-
 if __name__ == "__main__":
+    try:
+        shell_cmd("open -gja /System/Applications/FindMy.app", shell=True)
+    except:
+        #Maybe Apple changed the name or the dir of the app?
+        pass
     curses.wrapper(main)
