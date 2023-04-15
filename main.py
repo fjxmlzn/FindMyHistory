@@ -5,6 +5,7 @@ import curses
 from subprocess import check_call as shell_cmd
 from datetime import datetime
 from tabulate import tabulate
+from functools import partial
 from lib.constants import JSON_LAYER_SEPARATOR
 from lib.constants import FINDMY_FILES
 from lib.constants import NAME_SEPARATOR
@@ -72,7 +73,7 @@ def parse_args():
     return args
 
 
-def main(stdscr):
+def main(stdscr, args):
     stdscr.clear()
     args = parse_args()
     log_manager = LogManager(
@@ -120,4 +121,5 @@ if __name__ == "__main__":
     except:
         # Maybe Apple changed the name or the dir of the app?
         pass
-    curses.wrapper(main)
+    args = parse_args()
+    curses.wrapper(partial(main, args=args))
