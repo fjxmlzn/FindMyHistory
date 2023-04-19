@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 from datetime import datetime
 from collections import defaultdict
 
@@ -62,20 +61,18 @@ class LogManager(object):
         return items_dict
 
     def _save_log(self, name, data):
-        log_folder = self._log_folder
+        log_folder = Path(self._log_folder)
         if not self._no_date_folder:
-            log_folder = os.path.join(
-                log_folder, datetime.now().strftime(self._date_format))
-        if not os.path.exists(log_folder):
-            os.makedirs(log_folder)
-        path = os.path.join(log_folder, name + '.csv')
+            log_folder /= datetime.now().strftime(self._date_format)
+        log_folder.mkdir(parents=True, exist_ok=True)
+        path = log_folder / f"{name}.csv"
 
-        if not os.path.exists(path):
-            with open(path, 'w') as f:
+        if not path.exists():
+            with path.open("w") as f:
                 writer = csv.writer(f)
                 writer.writerow(self._keys)
 
-        with open(path, 'a') as f:
+        with path.open("a") as f:
             writer = csv.writer(f)
             writer.writerow([data[k] for k in self._keys])
 
