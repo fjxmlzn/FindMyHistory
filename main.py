@@ -6,13 +6,8 @@ from subprocess import check_call as shell_cmd
 from datetime import datetime
 from tabulate import tabulate
 from functools import partial
-from lib.constants import JSON_LAYER_SEPARATOR
-from lib.constants import FINDMY_FILES
-from lib.constants import NAME_SEPARATOR
-from lib.constants import JSON_LAYER_SEPARATOR
-from lib.constants import NULL_STR
-from lib.constants import TIME_FORMAT
-from lib.constants import DATE_FORMAT
+from lib.constants import (JSON_LAYER_SEPARATOR, FINDMY_FILES, 
+                 NAME_SEPARATOR, NULL_STR, TIME_FORMAT, DATE_FORMAT,)
 from lib.log_manager import LogManager
 
 
@@ -77,7 +72,7 @@ def main(stdscr, args):
     stdscr.clear()
     args = parse_args()
     log_manager = LogManager(
-        findmy_files=[os.path.expanduser(f) for f in FINDMY_FILES],
+        findmy_files=[Path(f).expanduser() for f in FINDMY_FILES],
         store_keys=args.store_keys,
         timestamp_key=args.timestamp_key,
         log_folder=args.log_folder,
@@ -115,11 +110,16 @@ def main(stdscr, args):
         time.sleep(float(args.refresh) / 1000)
 
 
-if __name__ == "__main__":
+def run(args):
     try:
         shell_cmd("open -gja /System/Applications/FindMy.app", shell=True)
     except:
         # Maybe Apple changed the name or the dir of the app?
         pass
-    args = parse_args()
+
     curses.wrapper(partial(main, args=args))
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    run(args)
