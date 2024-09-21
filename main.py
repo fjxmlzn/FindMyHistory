@@ -73,7 +73,7 @@ def parse_args():
         type=str,
         action='store',
         default='local',
-        help='Location to log findmy data.'
+        help='Location to log findmy data. Default: local'
     )
     # Influx-specific args
     parser.add_argument(
