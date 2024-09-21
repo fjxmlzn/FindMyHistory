@@ -68,7 +68,52 @@ def parse_args():
         action='store_true',
         help='By default, the logs of each day will be saved in a separated '
              'folder. Use this option to turn it off.')
+    parser.add_argument(
+        '--log_location',
+        type=str,
+        action='store',
+        default='local',
+        help='Location to log findmy data.'
+    )
+    # Influx-specific args
+    parser.add_argument(
+        '--influx_host',
+        type=str,
+        action='store',
+        required=False,
+        default=None,
+        help='InfluxDB Host (required when --log_location is set to influx)'
+    )
+    parser.add_argument(
+        '--influx_token',
+        type=str,
+        action='store',
+        required=False,
+        default=None,
+        help='InfluxDB Token (required when --log_location is set to influx)'
+    )
+    parser.add_argument(
+        '--influx_org',
+        type=str,
+        action='store',
+        required=False,
+        default=None,
+        help='InfluxDB Organization (required when --log_location is set to influx)'
+    )
+    parser.add_argument(
+        '--influx_bucket',
+        type=str,
+        action='store',
+        required=False,
+        default=None,
+        help='InfluxDB Bucket (required when --log_location is set to influx)'
+    )
     args = parser.parse_args()
+
+    # Enforce required args for influx log location
+    if args.log_location == 'influx':
+        if args.influx_host is None or args.influx_token is None or args.influx_org is None or args.influx_bucket is None:
+            parser.error("--influx_host, --influx_port, and --influx_database are required when --log_location is set to 'influx'")
 
     return args
 
@@ -86,7 +131,12 @@ def main(stdscr, args):
         json_layer_separator=JSON_LAYER_SEPARATOR,
         null_str=NULL_STR,
         date_format=DATE_FORMAT,
-        no_date_folder=args.no_date_folder)
+        no_date_folder=args.no_date_folder,
+        log_location=args.log_location,
+        influx_host=args.influx_host,
+        influx_token=args.influx_token,
+        influx_org=args.influx_org,
+        influx_bucket=args.influx_bucket)
     while True:
         log_manager.refresh_log()
         latest_log, log_cnt = log_manager.get_latest_log()
