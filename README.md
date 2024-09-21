@@ -81,10 +81,10 @@ By default, FindMyHistory will log locally to a CSV file on your machine. Altern
 
     When using the `influx` log location, the following arguments will also need to be provided:
 
-    - `influx_host`: InfluxDB2 Instance Hostname, ex: `http://yourserver.com:8086` or `https://influx.yourserver.com` for proxied or cloud instances
-    - `influx_token`: An InfluxDB2 Read/Write token with access to the bucket you wish to push data to
-    - `influx_org`: Randomized ID (Not Name) of the InfluxDB2 Organization your bucket resides in
-    - `influx_bucket`: Name of the bucket you wish to push location data to
+    - `--influx_host`: InfluxDB2 Instance Hostname, ex: `http://yourserver.com:8086` or `https://influx.yourserver.com` for proxied or cloud instances
+    - `--influx_token`: An InfluxDB2 Read/Write token with access to the bucket you wish to push data to
+    - `--influx_org`: Randomized ID (Not Name) of the InfluxDB2 Organization your bucket resides in
+    - `--influx_bucket`: Name of the bucket you wish to push location data to
 ## How it works
 
 While FindMy is running, it stores the information of your devices in temporary files `~/Library/Caches/com.apple.findmy.fmipcore/Items.data` `~/Library/Caches/com.apple.findmy.fmipcore/Devices.data` in JSON format. `FindMyHistory` periodically reads these files and stores a new record for each device if there is an update. 
