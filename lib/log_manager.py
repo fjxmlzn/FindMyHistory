@@ -1,8 +1,6 @@
 import csv
 import json
 import os
-import time
-import logging
 from datetime import datetime
 from collections import defaultdict
 from influxdb_client import InfluxDBClient
