@@ -3,22 +3,39 @@ import json
 import os
 from datetime import datetime
 from collections import defaultdict
+from influxdb_client import InfluxDBClient
 
 
 class LogManager(object):
     def __init__(self, findmy_files, store_keys, timestamp_key, log_folder,
                  name_keys, name_separator, json_layer_separator, null_str,
-                 date_format, no_date_folder):
+                 date_format, no_date_folder, log_location, influx_host,
+                 influx_token, influx_org, influx_bucket):
         self._findmy_files = findmy_files
         self._store_keys = store_keys
         self._timestamp_key = timestamp_key
-        self._log_folder = log_folder
         self._name_keys = name_keys
         self._name_separator = name_separator
         self._json_layer_separator = json_layer_separator
         self._null_str = null_str
         self._date_format = date_format
-        self._no_date_folder = no_date_folder
+
+        # Log location config
+        self._log_location = log_location
+        if self._log_location == 'local':
+            self._log_folder = log_folder
+            self._no_date_folder = no_date_folder
+        elif self._log_location == 'influx':
+            self._influx_org = influx_org
+            self._influx_bucket = influx_bucket
+            influx_client = InfluxDBClient(
+                url=influx_host,
+                token=influx_token,
+                org=self._influx_org
+            )
+            self._influx_write_api = influx_client.write_api()
+        else:
+            raise ValueError(f"Unsupported log location: `{self._log_location}`, supported log locations: `local`, `influx`")
 
         self._latest_log = {}
         self._log_cnt = defaultdict(int)
@@ -62,6 +79,15 @@ class LogManager(object):
         return items_dict
 
     def _save_log(self, name, data):
+        """
+        Routes _save_log() calls to their proper function based on log location
+        """
+        if self._log_location == 'local':
+            return self._save_log_local(name, data)
+        elif self._log_location == 'influx':
+            return self._save_log_influx(name, data)
+
+    def _save_log_local(self, name, data):
         log_folder = self._log_folder
         if not self._no_date_folder:
             log_folder = os.path.join(
@@ -79,9 +105,36 @@ class LogManager(object):
             writer = csv.writer(f)
             writer.writerow([data[k] for k in self._keys])
 
+    def _save_log_influx(self, name, data):
+        """
+        Sends log data to an InfluxDB2 database bucket
+        """
+        with open("test.txt", 'w') as f:
+            f.write(f"Saving Log Line for {name}: {data}")
+
+        self._influx_write_api.write(
+            bucket=self._influx_bucket,
+            org=self._influx_org,
+            record={
+                "measurement": name,
+                "fields": {
+                    key: float(data[key]) if isinstance(data[key], int) else data[key]
+                    for key in self._keys
+                    if key in data
+                },
+                "time": data['location|timeStamp']
+            },
+            write_precision='ms'
+        )
+
     def refresh_log(self):
         items_dict = self._get_items_dict()
         for name in items_dict:
+            # On non-local log locations, don't push null data
+            if self._log_location != 'local' and (items_dict[name]['location|timeStamp'] == 'NULL' or
+                                                  items_dict[name]['location|longitude'] == 'NULL'):
+                continue
+
             if (name not in self._latest_log or
                     self._latest_log[name] != items_dict[name]):
                 self._save_log(name, items_dict[name])

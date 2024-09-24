@@ -41,9 +41,9 @@ You can configure the refresh time, log folder, and many more in `FindMyHistory`
 
 ```
 python3 main.py --help
-usage: main.py [-h] [--refresh REFRESH] [--name_keys NAME_KEYS]
-               [--store_keys STORE_KEYS] [--timestamp_key TIMESTAMP_KEY]
-               [--log_folder LOG_FOLDER] [--no_date_folder]
+usage: main.py [-h] [--refresh REFRESH] [--name_keys NAME_KEYS] [--store_keys STORE_KEYS] [--timestamp_key TIMESTAMP_KEY]
+               [--log_folder LOG_FOLDER] [--no_date_folder] [--log_location LOG_LOCATION] [--influx_host INFLUX_HOST]
+               [--influx_token INFLUX_TOKEN] [--influx_org INFLUX_ORG] [--influx_bucket INFLUX_BUCKET]
 
 Record Apple findmy history for Apple devices.
 
@@ -58,10 +58,33 @@ options:
                         The key of timestamp in findmy JSON
   --log_folder LOG_FOLDER
                         The path of log folder.
-  --no_date_folder      By default, the logs of each day will be saved in a
-                        separated folder. Use this option to turn it off.
+  --no_date_folder      By default, the logs of each day will be saved in a separated folder. Use this option to turn it off.
+  --log_location LOG_LOCATION
+                        Location to log findmy data. Default: local
+  --influx_host INFLUX_HOST
+                        InfluxDB Host (required when --log_location is set to influx)
+  --influx_token INFLUX_TOKEN
+                        InfluxDB Token (required when --log_location is set to influx)
+  --influx_org INFLUX_ORG
+                        InfluxDB Organization (required when --log_location is set to influx)
+  --influx_bucket INFLUX_BUCKET
+                        InfluxDB Bucket (required when --log_location is set to influx)
 ```
 
+## Alternate Logging Locations
+
+By default, FindMyHistory will log locally to a CSV file on your machine. Alternatively, you can choose to log to other remote locations with the `--log_location` flag.
+
+ - ### InfluxDB2 (`influx`)
+
+    By setting `--log_location` to `influx`, FindMyHistory will send formatted data to a Self-Hosted or Cloud-Based instance of InfluxDB2. This is helpful for accessing location data on other machines or creating Grafana Geomap dashboards with your location data.
+
+    When using the `influx` log location, the following arguments will also need to be provided:
+
+    - `--influx_host`: InfluxDB2 Instance Hostname, ex: `http://yourserver.com:8086` or `https://influx.yourserver.com` for proxied or cloud instances
+    - `--influx_token`: An InfluxDB2 Read/Write token with access to the bucket you wish to push data to
+    - `--influx_org`: Randomized ID (Not Name) of the InfluxDB2 Organization your bucket resides in
+    - `--influx_bucket`: Name of the bucket you wish to push location data to
 ## How it works
 
 While FindMy is running, it stores the information of your devices in temporary files `~/Library/Caches/com.apple.findmy.fmipcore/Items.data` `~/Library/Caches/com.apple.findmy.fmipcore/Devices.data` in JSON format. `FindMyHistory` periodically reads these files and stores a new record for each device if there is an update. 
