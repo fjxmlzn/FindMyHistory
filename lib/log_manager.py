@@ -34,6 +34,8 @@ class LogManager(object):
                 org=self._influx_org
             )
             self._influx_write_api = influx_client.write_api()
+        else:
+            raise ValueError(f"Unsupported log location: `{self._log_location}`, supported log locations: `local`, `influx`")
 
         self._latest_log = {}
         self._log_cnt = defaultdict(int)

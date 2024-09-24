@@ -72,6 +72,10 @@ def parse_args():
         '--log_location',
         type=str,
         action='store',
+        choices=[
+            'local',
+            'influx'
+        ]
         default='local',
         help='Location to log findmy data. Default: local'
     )
