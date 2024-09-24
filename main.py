@@ -75,7 +75,7 @@ def parse_args():
         choices=[
             'local',
             'influx'
-        ]
+        ],
         default='local',
         help='Location to log findmy data. Default: local'
     )
