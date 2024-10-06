@@ -14,7 +14,7 @@ Apple's [FindMy app](https://apps.apple.com/us/app/find-my/id1514844621) only sh
 
 ## How to use it
 
-The only thing you need is an Apple computer (e.g., MacBook (Air/Pro), iMac) with your Apple ID logged in and with Python3 installed. To use `FindMyHistory`, you only need to follow the three steps: 
+The only thing you need is an Apple computer (e.g., MacBook (Air/Pro), iMac), which is running macOS Ventura or earlier (<=13.7) with your Apple ID logged in and with Python3 installed. To use `FindMyHistory`, you only need to follow the three steps: 
 
 * **Step 1:** [Grant file access permission to Terminal](https://osxdaily.com/2018/10/09/fix-operation-not-permitted-terminal-error-macos/) 
 * **Step 2:** Open [FindMy app](https://apps.apple.com/us/app/find-my/id1514844621) and keep it active
