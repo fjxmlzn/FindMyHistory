@@ -4,7 +4,17 @@ import os
 from datetime import datetime
 from collections import defaultdict
 from influxdb_client import InfluxDBClient
+import plistlib
 
+def bytes_to_string(data):
+        if isinstance(data, bytes):
+            return data.decode('utf-8', errors='replace')
+        elif isinstance(data, dict):
+            return {bytes_to_string(key): bytes_to_string(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [bytes_to_string(item) for item in data]
+        else:
+            return data
 
 class LogManager(object):
     def __init__(self, findmy_files, store_keys, timestamp_key, log_folder,
@@ -61,8 +71,10 @@ class LogManager(object):
         items_dict = {}
         for file in self._findmy_files:
             try:
-                with open(file, 'r') as f:
-                    json_data = json.loads(f.read())
+                with open(file, 'rb') as f:
+                    plist_data = plistlib.load(f, fmt=plistlib.FMT_BINARY)
+                    converted_data = bytes_to_string(plist_data)
+                    json_data = json.dumps(converted_data)
                 for item in json_data:
                     item = self._process_item(item)
                     name = [item[key] if key in item else self._null_str
