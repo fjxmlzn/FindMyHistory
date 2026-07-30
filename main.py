@@ -14,6 +14,7 @@ from lib.constants import NULL_STR
 from lib.constants import TIME_FORMAT
 from lib.constants import DATE_FORMAT
 from lib.log_manager import LogManager
+from lib.findmy_decryptor import FindMyDecryptor
 
 
 def parse_args():
@@ -79,6 +80,18 @@ def parse_args():
         default='local',
         help='Location to log findmy data. Default: local'
     )
+    parser.add_argument(
+        '--fmip_key_file',
+        type=str,
+        action='store',
+        default=None,
+        help='Path to FMIPDataManager.bplist (symmetric key for FMIP cache).')
+    parser.add_argument(
+        '--fmf_key_file',
+        type=str,
+        action='store',
+        default=None,
+        help='Path to FMFDataManager.bplist (symmetric key for FMF cache).')
     # Influx-specific args
     parser.add_argument(
         '--influx_host',
@@ -125,6 +138,11 @@ def parse_args():
 def main(stdscr, args):
     stdscr.clear()
     args = parse_args()
+    decryptor = FindMyDecryptor()
+    if args.fmip_key_file:
+        decryptor.load_keys_from_file(args.fmip_key_file, "FMIP")
+    if args.fmf_key_file:
+        decryptor.load_keys_from_file(args.fmf_key_file, "FMF")
     log_manager = LogManager(
         findmy_files=[os.path.expanduser(f) for f in FINDMY_FILES],
         store_keys=args.store_keys,
@@ -140,7 +158,8 @@ def main(stdscr, args):
         influx_host=args.influx_host,
         influx_token=args.influx_token,
         influx_org=args.influx_org,
-        influx_bucket=args.influx_bucket)
+        influx_bucket=args.influx_bucket,
+        decryptor=decryptor)
     while True:
         log_manager.refresh_log()
         latest_log, log_cnt = log_manager.get_latest_log()
