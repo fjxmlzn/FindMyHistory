@@ -5,6 +5,7 @@ description = "FindMyHistory project"
 requires-python = ">=3.10"
 dependencies = [
     "certifi==2024.2.2",
+    "cryptography>=49.0.0",
     "influxdb-client==1.42.0",
     "python-dateutil==2.9.0.post0",
     "reactivex==4.0.4",
